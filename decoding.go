@@ -44,7 +44,7 @@ var ReadAnyLookupTable = []func(decoder *bytes.Buffer) (any, error){
 func init() {
 	ReadAnyLookupTable = append(ReadAnyLookupTable, ReadObject)        // CASE 118: object<string,any>
 	ReadAnyLookupTable = append(ReadAnyLookupTable, ReadArray)         // CASE 117: array<any>
-	ReadAnyLookupTable = append(ReadAnyLookupTable, ReadVarUnit8Array) // CASE 116: Uint8Array
+	ReadAnyLookupTable = append(ReadAnyLookupTable, ReadVarUint8Array) // CASE 116: Uint8Array
 }
 
 // undefined returns the Undefined constant indicating an undefined value.
@@ -254,30 +254,32 @@ func ReadObject(decoder *bytes.Buffer) (any, error) {
 
 // ReadArray decodes an array<any> from the decoder buffer.
 func ReadArray(decoder *bytes.Buffer) (any, error) {
+	array := make(ArrayAny, 0)
+
 	size, err := binary.ReadUvarint(decoder)
 	if err != nil {
-		return nil, err
+		return array, err
 	}
 
 	if size == 0 {
-		return nil, nil
+		return array, nil
 	}
 
-	arr := make(ArrayAny, size)
+	array = make(ArrayAny, size)
 	for i := uint64(0); i < size; i++ {
 		value, err := ReadAny(decoder)
 		if err != nil {
-			return nil, err
+			return array, err
 		}
 
-		arr[i] = value
+		array[i] = value
 	}
 
-	return arr, nil
+	return array, nil
 }
 
 // ReadVarUnit8Array decodes a Uint8Array (byte slice) from the decoder buffer.
-func ReadVarUnit8Array(decoder *bytes.Buffer) (any, error) {
+func ReadVarUint8Array(decoder *bytes.Buffer) (any, error) {
 	size, err := binary.ReadUvarint(decoder)
 	if err != nil {
 		return nil, err
