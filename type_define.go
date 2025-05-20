@@ -79,14 +79,21 @@ func NewSet() Set {
 }
 
 // IsUndefined returns true if the given object is undefined.
+// In javascript, undefined indicate that the variable has not been initialized.
+// In golang, a nil any(=interface{}) value indicates that the variable has not been initialized.
+// So, we define an object is undefined if its value is nil or its type is Undefined.
 func IsUndefined(obj any) bool {
 	return obj == nil || reflect.TypeOf(obj) == reflect.TypeOf(Undefined)
 }
 
-func IsNull(obj interface{}) bool {
+// IsNull returns true if the given object is null.
+// In javascript, null indicate that the variable has been initialized and the value is null.
+// In golang, we define an object is null if the object is a pointer kind and the value is nil or its type is Null.
+func IsNull(obj any) bool {
 	return reflect.TypeOf(obj) == reflect.TypeOf(Null) || (IsPtr(obj) && reflect.TypeOf(obj) != nil && reflect.ValueOf(obj).IsNil())
 }
 
-func IsPtr(obj interface{}) bool {
+// IsPtr returns true if the given object is a pointer.
+func IsPtr(obj any) bool {
 	return reflect.ValueOf(obj).Kind() == reflect.Ptr
 }
