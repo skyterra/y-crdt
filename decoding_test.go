@@ -26,6 +26,14 @@ func TestReadVarUnit(t *testing.T) {
 	if value.(uint64) != 255 {
 		t.Errorf("Expected value to be 255, got %d", value)
 	}
+
+	encoder = bytes.NewBuffer(nil)
+	WriteVarUint(encoder, 256)
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value = ReadVarUint(decoder)
+	if value.(uint64) != 256 {
+		t.Errorf("Expected value to be 256, got %d", value)
+	}
 }
 
 func TestReadUnit8(t *testing.T) {
@@ -52,6 +60,50 @@ func TestReadVarInt(t *testing.T) {
 
 	if value.(int) != 128 {
 		t.Errorf("Expected value to be 128, got %d", value)
+	}
+
+	encoder = bytes.NewBuffer(nil)
+	WriteVarInt(encoder, -128)
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadVarInt(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	if value.(int) != -128 {
+		t.Errorf("Expected value to be -128, got %d", value)
+	}
+
+	encoder = bytes.NewBuffer(nil)
+	WriteVarInt(encoder, math.MaxInt32)
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadVarInt(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	if value.(int) != math.MaxInt32 {
+		t.Errorf("Expected value to be %d, got %d", math.MaxInt32, value)
+	}
+
+	encoder = bytes.NewBuffer(nil)
+	WriteVarInt(encoder, 64)
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadVarInt(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	if value.(int) != 64 {
+		t.Errorf("Expected value to be 64, got %d", value)
+	}
+
+	encoder = bytes.NewBuffer(nil)
+	WriteVarInt(encoder, 63)
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadVarInt(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	if value.(int) != 63 {
+		t.Errorf("Expected value to be 63, got %d", value)
 	}
 }
 
@@ -234,10 +286,62 @@ func TestReadVarUint8Array(t *testing.T) {
 }
 
 func TestReadAny(t *testing.T) {
+	// write Undefined value.
 	encoder := bytes.NewBuffer(nil)
-	WriteAny(encoder, "hello")
+	WriteAny(encoder, nil)
 	decoder := bytes.NewBuffer(encoder.Bytes())
 	value, err := ReadAny(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	_, ok := value.(UndefinedType)
+	if !ok {
+		t.Errorf("Expected value to be undefined, got '%v'", value)
+	}
+
+	encoder = bytes.NewBuffer(nil)
+	WriteAny(encoder, Undefined)
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadAny(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	_, ok = value.(UndefinedType)
+	if !ok {
+		t.Errorf("Expected value to be undefined, got '%v'", value)
+	}
+
+	// write Null value.
+	encoder = bytes.NewBuffer(nil)
+	WriteAny(encoder, Null)
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadAny(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	_, ok = value.(NullType)
+	if !ok {
+		t.Errorf("Expected value to be null, got '%v'", value)
+	}
+
+	encoder = bytes.NewBuffer(nil)
+	var a *int
+	WriteAny(encoder, a)
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadAny(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	_, ok = value.(NullType)
+	if !ok {
+		t.Errorf("Expected value to be null, got '%v'", value)
+	}
+
+	// write string value.
+	encoder = bytes.NewBuffer(nil)
+	WriteAny(encoder, "hello")
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadAny(decoder)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -245,17 +349,67 @@ func TestReadAny(t *testing.T) {
 		t.Errorf("Expected value to be 'hello', got '%s'", value)
 	}
 
+	// write int8 value.
 	encoder = bytes.NewBuffer(nil)
-	WriteAny(encoder, 1)
+	WriteAny(encoder, int8(math.MaxInt8))
 	decoder = bytes.NewBuffer(encoder.Bytes())
 	value, err = ReadAny(decoder)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
-	if value.(int) != 1 {
-		t.Errorf("Expected value to be 1, got '%d'", value)
+	if value.(Number) != math.MaxInt8 {
+		t.Errorf("Expected value to be %d, got %d", math.MaxInt8, value)
 	}
 
+	// write int16 value.
+	encoder = bytes.NewBuffer(nil)
+	WriteAny(encoder, int16(math.MaxInt16))
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadAny(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	if value.(Number) != math.MaxInt16 {
+		t.Errorf("Expected value to be %d, got %d", math.MaxInt16, value)
+	}
+
+	// write int64 value.
+	encoder = bytes.NewBuffer(nil)
+	WriteAny(encoder, int64(math.MaxInt64))
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadAny(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	if value.(int64) != math.MaxInt64 {
+		t.Errorf("Expected value to be %d, got %d", math.MaxInt64, value)
+	}
+
+	// write number value.
+	encoder = bytes.NewBuffer(nil)
+	WriteAny(encoder, math.MaxInt)
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadAny(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	if value.(Number) != math.MaxInt {
+		t.Errorf("Expected value to be %d, got %d", math.MaxInt, value)
+	}
+
+	// write float32 value.
+	encoder = bytes.NewBuffer(nil)
+	WriteAny(encoder, float32(1.0))
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadAny(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	if value.(float32) != 1.0 {
+		t.Errorf("Expected value to be 1.0, got '%f'", value)
+	}
+
+	// write float64 value.
 	encoder = bytes.NewBuffer(nil)
 	WriteAny(encoder, 1.0)
 	decoder = bytes.NewBuffer(encoder.Bytes())
@@ -265,6 +419,18 @@ func TestReadAny(t *testing.T) {
 	}
 	if value.(float64) != 1.0 {
 		t.Errorf("Expected value to be 1.0, got '%f'", value)
+	}
+
+	// write boolean value.
+	encoder = bytes.NewBuffer(nil)
+	WriteAny(encoder, false)
+	decoder = bytes.NewBuffer(encoder.Bytes())
+	value, err = ReadAny(decoder)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+	if value.(bool) != false {
+		t.Errorf("Expected value to be false, got '%t'", value)
 	}
 
 	encoder = bytes.NewBuffer(nil)
@@ -278,18 +444,25 @@ func TestReadAny(t *testing.T) {
 		t.Errorf("Expected value to be true, got '%t'", value)
 	}
 
+	// write uint8 array value.
 	encoder = bytes.NewBuffer(nil)
-	WriteAny(encoder, nil)
+	WriteAny(encoder, []uint8{1, 2, 3})
 	decoder = bytes.NewBuffer(encoder.Bytes())
 	value, err = ReadAny(decoder)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
-	_, ok := value.(UndefinedType)
-	if !ok {
-		t.Errorf("Expected value to be undefined, got '%v'", value)
+	if value.([]uint8)[0] != 1 {
+		t.Errorf("Expected value to be 1, got '%d'", value)
+	}
+	if value.([]uint8)[1] != 2 {
+		t.Errorf("Expected value to be 2, got '%d'", value)
+	}
+	if value.([]uint8)[2] != 3 {
+		t.Errorf("Expected value to be 3, got '%d'", value)
 	}
 
+	// write object array value.
 	encoder = bytes.NewBuffer(nil)
 	WriteAny(encoder, []any{"hello", "world"})
 	decoder = bytes.NewBuffer(encoder.Bytes())
@@ -314,20 +487,18 @@ func TestReadAny(t *testing.T) {
 	if value.(Object)["hello"] != "world" {
 		t.Errorf("Expected value to be 'world', got '%s'", value)
 	}
+
+	// write object value.
 	encoder = bytes.NewBuffer(nil)
-	WriteAny(encoder, []uint8{1, 2, 3})
+	obj := NewObject()
+	obj["hello"] = "world"
+	WriteAny(encoder, obj)
 	decoder = bytes.NewBuffer(encoder.Bytes())
 	value, err = ReadAny(decoder)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
-	if value.([]uint8)[0] != 1 {
-		t.Errorf("Expected value to be 1, got '%d'", value)
-	}
-	if value.([]uint8)[1] != 2 {
-		t.Errorf("Expected value to be 2, got '%d'", value)
-	}
-	if value.([]uint8)[2] != 3 {
-		t.Errorf("Expected value to be 3, got '%d'", value)
+	if value.(Object)["hello"] != "world" {
+		t.Errorf("Expected value to be 'world', got '%s'", value)
 	}
 }
