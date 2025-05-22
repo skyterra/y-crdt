@@ -19,16 +19,3 @@ func CompareIDs(a *ID, b *ID) bool {
 	return a == b || (a != nil && b != nil && a.Client == b.Client && a.Clock == b.Clock)
 }
 
-// The top types are mapped from y.share.get(keyname) => type.
-// `type` does not store any information about the `keyname`.
-// This function finds the correct `keyname` for `type` and throws otherwise.
-// func FindRootTypeKey(t IAbstractType) string {
-// 	// @ts-ignore _y must be defined, otherwise unexpected case
-// 	for key, value := range t.GetDoc().Share {
-// 		if value == t {
-// 			return key
-// 		}
-// 	}
-
-// 	return ""
-// }
