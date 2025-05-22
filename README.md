@@ -1,5 +1,5 @@
 # y-crdt
-Implement the Yjs algorithms in Go.
+Implement the [Yjs](https://github.com/yjs/yjs) algorithms in Go.
 
 # Encoding & Decoding
 
@@ -38,3 +38,21 @@ Implement the Yjs algorithms in Go.
 - **ReadAny**: Decode based on type flag byte.
 
 Encoding and decoding are symmetric, using variable-length and big-endian formats for efficiency.
+
+# Yjs Data Structures
+## YMap
+- **YMap**: A key-value store with efficient updates.
+- **YMapItem**: Represents a key-value pair in the map.
+- **YMapItemMap**: Maps keys to YMapItem pointers.
+## YArray
+- **YArray**: A dynamic array with efficient updates.
+- **YArrayItem**: Represents an element in the array.
+## YText
+- **YText**: A text document with efficient updates.
+- **YTextItem**: Represents a character in the text.
+- **YTextItemMap**: Maps positions to YTextItem pointers.
+## YXmlFragment
+- **YXmlFragment**: A fragment of an XML document.   
+- **YXmlFragmentItem**: Represents an XML node.
+- **YXmlFragmentItemMap**: Maps positions to YXmlFragmentItem pointers.
+
