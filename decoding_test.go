@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestHasCOntent(t *testing.T) {
+func TestHasContent(t *testing.T) {
 	decoder := bytes.NewBuffer([]byte{0x7F})
 	if !hasContent(decoder) {
 		t.Errorf("Expected decoder to have content, but it did not")
