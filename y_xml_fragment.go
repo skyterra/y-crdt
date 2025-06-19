@@ -104,12 +104,12 @@ func (y *YXmlFragment) CreateTreeWalker(filter func(abstractType IAbstractType) 
 	return NewYXmlTreeWalker(y, filter)
 }
 
-// 暂不支持
+// not supported yet.
 func (y *YXmlFragment) QuerySelector(query interface{}) {
 
 }
 
-// 暂不支持
+// not supported yet.
 func (y *YXmlFragment) QuerySelectorAll(query interface{}) {
 
 }
@@ -145,7 +145,7 @@ func (y *YXmlFragment) ToJson() interface{} {
 	return y.ToString()
 }
 
-// 暂不支持
+// not supported yet.
 func (y *YXmlFragment) ToDOM() {
 
 }
@@ -256,14 +256,20 @@ func (y *YXmlFragment) Write(encoder *UpdateEncoderV1) {
 }
 
 func NewYXmlFragment() *YXmlFragment {
-	return &YXmlFragment{}
+	return &YXmlFragment{
+		AbstractType: AbstractType{
+			Map: make(map[string]*Item),
+			EH:  NewEventHandler(),
+			DEH: NewEventHandler(),
+		},
+	}
 }
 
 func NewYXmlFragmentType() IAbstractType {
 	return NewYXmlFragment()
 }
 
-// 暂不支持
+// not supported yet.
 func NewYXmlTreeWalker(root interface{}, f func(abstractType IAbstractType) bool) *YXmlTreeWalker {
 
 	return nil

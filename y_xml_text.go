@@ -54,7 +54,7 @@ func (y *YXmlText) Clone() IAbstractType {
 	return text
 }
 
-// 暂不支持
+// not supported yet.
 func (y *YXmlText) ToDOM() {
 
 }
