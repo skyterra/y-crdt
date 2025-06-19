@@ -1,10 +1,11 @@
 # y-crdt
-Implement the [Yjs](https://github.com/yjs/yjs) algorithms in Go.
+A Golang implementation of the [Yjs](https://github.com/yjs/yjs) algorithms, designed to serve as a robust backend server for multi-terminal document collaboration. This implementation enhances real-time collaboration experiences across diverse user scenarios by efficiently merging updates from various terminals, extracting differential data, and supporting data archiving.
+
+In the future, we plan to develop a complete y-server service that synchronizes data with client terminals via WebSocket. Stay tuned for updates!
 
 # Compatibility test
-test code in compatibility_test.go
-NOTE: the encode/decoder v2 is not supported yet.
-
+Test cases are implemented in compatibility_test.go , focusing on validating cross-version and cross-language compatibility with Yjs.   
+Note: Encoder/decoder v2 support is pending development.
 ```go
 
 func TestTextInsertDelete(t *testing.T) {
