@@ -84,7 +84,17 @@ func TestMapSet(t *testing.T) {
 	}, nil)
 
 	content, err := json.Marshal(x.ToJson())
-	t.Logf("construct by golang, x is %s, err is %v", content, err)
+	if err != nil {
+		t.Errorf("marshal x to json, err is %v", err)
+	}
+
+	t.Logf("construct by golang, x is %s", content)
+
+	m := make(map[string]string)
+	err = json.Unmarshal(content, &m)
+	if err != nil || len(m) != 2 || m["k1"] != "v1" || m["k2"] != "v2" {
+		t.Errorf("expected {\"k1\":\"v1\",\"k2\":\"v2\"}, got %s", content)
+	}
 
 	// apply the update(v1) and check to see if the result is the same as the expected.
 	var payload = []byte{
@@ -97,9 +107,92 @@ func TestMapSet(t *testing.T) {
 	}, nil)
 
 	content, err = json.Marshal(doc.GetMap("test").ToJson())
-	t.Logf("after apply update, x is %s, err is %v", content, err)
+	if err != nil {
+		t.Errorf("marshal doc.GetMap(\"test\") to json, err is %v", err)
+	}
+
+	t.Logf("after apply update, x is %s", content)
+
+	m = make(map[string]string)
+	err = json.Unmarshal(content, &m)
+	if err != nil || len(m) != 2 || m["k1"] != "v1" || m["k2"] != "v2" {
+		t.Errorf("expected {\"k1\":\"v1\",\"k2\":\"v2\"}, got %s", content)
+	}
 
 	// decoder v2 not support yet.
+}
+
+func TestArrayInsert(t *testing.T) {
+	// Generated via:
+	//     ```js
+	//        const doc = new Y.Doc()
+	//        const x = doc.getArray('test')
+	//        x.push(['a']);
+	//        x.push(['b']);
+	//        const payload_v1 = Y.encodeStateAsUpdate(doc)
+	//        console.log(payload_v1);
+	//        const payload_v2 = Y.encodeStateAsUpdateV2(doc)
+	//        console.log(payload_v2);
+	//     ```
+
+	// construct doc by golang and check to see if the result is the same as the expected.
+	doc := NewDoc("guid", false, nil, nil, false)
+	x := doc.GetArray("test")
+	doc.Transact(func(trans *Transaction) {
+		x.Push([]any{"a"})
+		x.Push([]any{"b"})
+	}, nil)
+
+	content, err := json.Marshal(x.ToJson())
+	t.Logf("construct by golang, x is %s, err is %v", content, err)
+
+	if !bytes.Equal(content, []byte("[\"a\",\"b\"]")) {
+		t.Errorf("expected [\"a\",\"b\"], got %s", content)
+	}
+
+	// apply the update(v1) and check to see if the result is the same as the expected.
+	var payload = []byte{
+		1, 1, 208, 180, 170, 180, 9, 0, 8, 1, 4, 116, 101, 115, 116, 2, 119, 1, 97, 119, 1, 98, 0,
+	}
+
+	doc = NewDoc("guid", false, nil, nil, false)
+	doc.Transact(func(trans *Transaction) {
+		ApplyUpdate(doc, payload, nil)
+	}, nil)
+
+	content, err = json.Marshal(doc.GetArray("test").ToJson())
+	t.Logf("after apply update, x is %s, err is %v", content, err)
+
+	if !bytes.Equal(content, []byte("[\"a\",\"b\"]")) {
+		t.Errorf("expected [\"a\",\"b\"], got %s", content)
+	}
+}
+
+func TestXmlFragmentInsert(t *testing.T) {
+	//  Generated via:
+	// ```js
+	//    const ydoc = new Y.Doc()
+	//    const yxmlFragment = ydoc.getXmlFragment('fragment-name')
+	//    const yxmlNested = new Y.XmlFragment('fragment-name')
+	//    const yxmlText = new Y.XmlText()
+	//    yxmlFragment.insert(0, [yxmlText])
+	//    yxmlFragment.firstChild === yxmlText
+	//    yxmlFragment.insertAfter(yxmlText, [new Y.XmlElement('node-name')])
+	//    const payload_v1 = Y.encodeStateAsUpdate(ydoc)
+	//    console.log(payload_v1);
+	//    const payload_v2 = Y.encodeStateAsUpdateV2(ydoc)
+	//    console.log(payload_v2);
+	// ```
+
+	// construct doc by golang and check to see if the result is the same as the expected.
+	doc := NewDoc("guid", false, nil, nil, false)
+	yxmlFragment := doc.GetXmlFragment("fragment-name").(*YXmlFragment)
+	yxmlText := NewYXmlText()
+	yxmlFragment.Insert(0, ArrayAny{yxmlText})
+
+	if yxmlFragment.GetFirstChild().(*YXmlText) != yxmlText {
+		t.Errorf("expected yxmlFragment.GetFirstChild() is yxmlText, got %v", yxmlFragment.GetFirstChild())
+	}
 }
 
 ```

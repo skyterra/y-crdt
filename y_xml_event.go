@@ -22,5 +22,5 @@ func NewYXmlEvent(target IAbstractType, subs Set, trans *Transaction) *YXmlEvent
 		}
 	})
 
-	return &YXmlEvent{}
+	return e
 }
