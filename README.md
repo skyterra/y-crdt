@@ -3,6 +3,9 @@ A Golang implementation of the [Yjs](https://github.com/yjs/yjs) algorithms, des
 
 In the future, we plan to develop a complete y-server service that synchronizes data with client terminals via WebSocket. Stay tuned for updates!
 
+# Update
+support y-protocols lib.
+
 # Compatibility test
 Test cases are implemented in compatibility_test.go , focusing on validating cross-version and cross-language compatibility with Yjs.   
 Note: Encoder/decoder v2 support is pending development.
