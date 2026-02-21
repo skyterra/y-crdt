@@ -125,5 +125,10 @@ func (y *YXmlText) Write(encoder *UpdateEncoderV1) {
 }
 
 func NewYXmlText() *YXmlText {
-	return &YXmlText{}
+	yText := YText{}
+	yText.EH = NewEventHandler()
+	yText.DEH = NewEventHandler()
+	return &YXmlText{
+		YText: yText,
+	}
 }
