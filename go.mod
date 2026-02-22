@@ -1,4 +1,4 @@
-module github.com/skyterra/y-crdt
+module github.com/haowjy/y-crdt
 
 go 1.24.3
 
