@@ -2,7 +2,7 @@
 
 # run unit test
 test:
-	go test ./...
+	go test ./... -gcflags="all=-N -l"
 
 # generate coverage statistics.
 cover:

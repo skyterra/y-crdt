@@ -131,7 +131,7 @@ func MinimizeAttributeChanges(currPos *ItemTextListPosition, attributes Object) 
 		return EqualAttrs(attributes[cf.Key], cf.Value)
 	}
 
-	for currPos.Right.Deleted() || isEqual(currPos.Right.Content, attributes) {
+	for currPos.Right != nil && (currPos.Right.Deleted() || isEqual(currPos.Right.Content, attributes)) {
 		currPos.Forward()
 	}
 }
